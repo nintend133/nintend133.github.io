@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>웹 3요소 마스터: 입문부터 심화까지</title>
+  <style>
+    /* ==========================================
+       1. Global Reset & Layout
+       ========================================== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+      line-height: 1.6;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    section {
+      padding: 5rem 0;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .section-header h2 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+    .section-header p {
+      color: #94a3b8;
+      font-size: 1.1rem;
+    }
+
+    .step-badge {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 0.8rem;
+    }
+
+    /* ==========================================
+       2. Hero Header
+       ========================================== */
+    header.hero {
+      background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
+      padding: 6rem 1.5rem 4rem;
+      text-align: center;
+      border-bottom: 1px solid #334155;
+    }
+    .hero h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      background: linear-gradient(to right, #f97316, #3b82f6, #eab308, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      color: #cbd5e1;
+      max-width: 780px;
+      margin: 0 auto 2.5rem;
+    }
+    .hero-nav {
+      display: flex;
+      justify-content: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .nav-btn {
+      padding: 0.6rem 1.2rem;
+      border-radius: 20px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #cbd5e1;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .nav-btn:hover {
+      border-color: #38bdf8;
+      color: #38bdf8;
+      transform: translateY(-2px);
+    }
+
+    /* ==========================================
+       3. Tutorial Section (Step 1-3)
+       ========================================== */
+    .tutorial-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      align-items: center;
+    }
+    @media (max-width: 900px) {
+      .tutorial-grid { grid-template-columns: 1fr; }
+    }
+
+    .tutorial-info h3 { font-size: 1.8rem; margin-bottom: 1rem; }
+    .tutorial-info p { color: #94a3b8; margin-bottom: 1.5rem; }
+    .feature-list {
+      list-style: none; display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem;
+    }
+    .feature-list li {
+      display: flex; align-items: flex-start; gap: 0.5rem; color: #cbd5e1; font-size: 0.95rem;
+    }
+
+    .code-box {
+      background: #181825; border-radius: 10px; padding: 1.2rem;
+      font-family: 'Fira Code', Consolas, monospace; font-size: 0.85rem;
+      border-left: 4px solid #6c7086; color: #a6adc8; line-height: 1.5;
+    }
+
+    .live-demo-box {
+      background: #ffffff; border-radius: 12px; padding: 2.5rem 2rem;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 250px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .badge-html { background: rgba(249, 115, 22, 0.15); color: #f97316; }
+    .border-html { border-left-color: #f97316; }
+    .badge-css { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+    .border-css { border-left-color: #3b82f6; }
+    .badge-js { background: rgba(234, 179, 8, 0.15); color: #eab308; }
+    .border-js { border-left-color: #eab308; }
+
+    .demo-step1-card { color: #000; font-family: serif; }
+    .demo-step1-btn { padding: 2px 6px; margin-top: 6px; }
+
+    .demo-step2-card {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      color: white; padding: 1.8rem; border-radius: 16px; text-align: center; width: 100%; max-width: 300px;
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+    .demo-step2-btn {
+      background: white; color: #2563eb; border: none; padding: 0.6rem 1.2rem;
+      border-radius: 20px; font-weight: bold; margin-top: 1rem; cursor: pointer;
+    }
+
+    .demo-step3-card {
+      background: linear-gradient(135deg, #eab308, #f97316);
+      color: white; padding: 1.8rem; border-radius: 16px; text-align: center; width: 100%; max-width: 300px;
+      box-shadow: 0 8px 20px rgba(234, 179, 8, 0.3); transition: transform 0.2s;
+    }
+    .demo-step3-btn {
+      background: #0f172a; color: white; border: none; padding: 0.6rem 1.2rem;
+      border-radius: 20px; font-weight: bold; margin-top: 1rem; cursor: pointer;
+    }
+
+    /* ==========================================
+       4. NEW SECTION: Advanced Rendering Pipeline
+       ========================================== */
+    .pipeline-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.2rem;
+      margin-top: 2rem;
+    }
+    .pipeline-step {
+      background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 1.5rem;
+      position: relative; text-align: center;
+    }
+    .pipeline-number {
+      font-size: 0.8rem; font-weight: bold; color: #38bdf8; text-transform: uppercase; margin-bottom: 0.5rem;
+    }
+    .pipeline-step h4 { font-size: 1.1rem; margin-bottom: 0.5rem; color: #f8fafc; }
+    .pipeline-step p { font-size: 0.85rem; color: #94a3b8; }
+
+    /* ==========================================
+       5. NEW SECTION: CSS Interactive Box Model
+       ========================================== */
+    .box-model-interactive {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; background: #1e293b;
+      padding: 2rem; border-radius: 12px; border: 1px solid #334155;
+    }
+    @media (max-width: 900px) { .box-model-interactive { grid-template-columns: 1fr; } }
+    
+    .box-controls { display: flex; flex-direction: column; gap: 1.2rem; }
+    .control-item { display: flex; flex-direction: column; gap: 0.4rem; }
+    .control-item label { font-size: 0.9rem; font-weight: bold; color: #cbd5e1; display: flex; justify-content: space-between; }
+    .control-item input[type="range"] { accent-color: #3b82f6; cursor: pointer; }
+
+    .box-visualizer {
+      display: flex; justify-content: center; align-items: center; min-height: 280px; background: #0f172a; border-radius: 8px; padding: 1rem;
+    }
+    .box-margin {
+      background: rgba(249, 115, 22, 0.2); border: 2px dashed #f97316; transition: all 0.2s; display: flex; justify-content: center; align-items: center;
+    }
+    .box-border {
+      background: rgba(234, 179, 8, 0.2); border-style: solid; border-color: #eab308; transition: all 0.2s; display: flex; justify-content: center; align-items: center;
+    }
+    .box-padding {
+      background: rgba(59, 130, 246, 0.2); border: 2px dashed #3b82f6; transition: all 0.2s; display: flex; justify-content: center; align-items: center;
+    }
+    .box-content {
+      background: #6366f1; color: white; padding: 1rem; border-radius: 4px; font-weight: bold; font-size: 0.85rem; text-align: center;
+    }
+
+    /* ==========================================
+       6. NEW SECTION: JS Async & Fetch Demo
+       ========================================== */
+    .async-demo {
+      background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 2rem; text-align: center;
+    }
+    .async-btn {
+      background: #a855f7; color: white; border: none; padding: 0.8rem 1.6rem; border-radius: 25px;
+      font-weight: bold; cursor: pointer; transition: background 0.2s; margin-bottom: 1.5rem;
+    }
+    .async-btn:hover { background: #9333ea; }
+    .server-data-card {
+      background: #0f172a; border: 1px dashed #475569; border-radius: 10px; padding: 1.5rem;
+      max-width: 400px; margin: 0 auto; text-align: left; font-family: 'Fira Code', monospace; font-size: 0.9rem;
+    }
+    .loading-spinner {
+      display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ==========================================
+       7. Combined Sandbox Section
+       ========================================== */
+    .sandbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 900px) { .sandbox-grid { grid-template-columns: 1fr; } }
+
+    .code-panel {
+      background: #1e1e2e; border: 1px solid #313244; border-radius: 12px; padding: 1.2rem; display: flex; flex-direction: column; gap: 1rem;
+    }
+    .panel-title {
+      font-size: 1rem; font-weight: 600; color: #cdd6f4; border-bottom: 1px solid #45475a; padding-bottom: 0.8rem;
+    }
+    .code-block {
+      background: #181825; border-radius: 8px; padding: 1rem; font-family: 'Fira Code', Consolas, monospace;
+      font-size: 0.85rem; border-left: 4px solid #6c7086; opacity: 0.3; transition: all 0.3s ease;
+    }
+    .code-block.active { opacity: 1; }
+    .code-block.html-block.active { border-left-color: #f97316; }
+    .code-block.css-block.active { border-left-color: #3b82f6; }
+    .code-block.js-block.active { border-left-color: #eab308; }
+    .code-title { font-weight: bold; margin-bottom: 0.4rem; }
+    .tag-html { color: #f97316; }
+    .tag-css { color: #3b82f6; }
+    .tag-js { color: #eab308; }
+    pre { white-space: pre-wrap; word-break: break-all; color: #a6adc8; }
+
+    .preview-panel { display: flex; flex-direction: column; gap: 1rem; }
+    .controls { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.2rem; }
+    .toggle-buttons { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+    .toggle-btn {
+      flex: 1; min-width: 100px; padding: 0.75rem 1rem; border: 2px solid #475569; border-radius: 8px;
+      background: #0f172a; color: #94a3b8; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; transition: all 0.2s;
+    }
+    .toggle-btn.active-html { background: #ea580c; border-color: #f97316; color: white; }
+    .toggle-btn.active-css { background: #2563eb; border-color: #3b82f6; color: white; }
+    .toggle-btn.active-js { background: #ca8a04; border-color: #eab308; color: white; }
+
+    .canvas-container {
+      flex: 1; background: #ffffff; border-radius: 12px; padding: 2rem; display: flex; align-items: center; justify-content: center; min-height: 280px; position: relative;
+    }
+
+    .raw-card { color: #000; font-family: serif; }
+    .raw-button { padding: 2px 6px; margin-top: 5px; cursor: pointer; }
+    .styled-card {
+      background: linear-gradient(135deg, #6366f1, #a855f7); color: white; padding: 2rem; border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(99,102,241,0.3); text-align: center; transition: all 0.3s ease; width: 100%; max-width: 300px;
+    }
+    .styled-button {
+      background: #fff; color: #4f46e5; border: none; padding: 0.7rem 1.4rem; font-weight: 700; border-radius: 20px; cursor: pointer; margin-top: 1rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.1s;
+    }
+
+    .explanation-box { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem; color: #cbd5e1; font-size: 0.9rem; }
+
+    /* ==========================================
+       8. NEW SECTION: Modern Ecosystem
+       ========================================== */
+    .eco-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+    .eco-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.8rem; }
+    .eco-card h3 { font-size: 1.2rem; color: #38bdf8; margin-bottom: 0.8rem; }
+    .eco-card p { font-size: 0.9rem; color: #94a3b8; }
+
+    /* ==========================================
+       9. FAQ Section
+       ========================================== */
+    .faq-list { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 1rem; }
+    .faq-item { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 1.5rem; }
+    .faq-item h3 { font-size: 1.1rem; color: #f8fafc; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+    .faq-item h3::before { content: 'Q.'; color: #38bdf8; font-weight: 800; }
+    .faq-item p { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; }
+
+    /* Footer */
+    footer { text-align: center; padding: 3rem 1.5rem; color: #64748b; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+
+  <!-- HERO HEADER -->
+  <header class="hero">
+    <div class="container">
+      <h1>웹 개발 풀스택 시각화 가이드</h1>
+      <p>기초 3대 언어부터 브라우저 렌더링, CSS 박스 모델, JS 비동기 통신 등 실무 심화 개념까지 한눈에 파악해 보세요.</p>
+      <div class="hero-nav">
+        <a href="#step-html" class="nav-btn">1. HTML (뼈대)</a>
+        <a href="#step-css" class="nav-btn">2. CSS (디자인)</a>
+        <a href="#step-js" class="nav-btn">3. JS (동작)</a>
+        <a href="#rendering" class="nav-btn">⚙️ 렌더링 원리</a>
+        <a href="#box-model" class="nav-btn">📦 박스 모델</a>
+        <a href="#async-sec" class="nav-btn">🌐 비동기 통신</a>
+        <a href="#sandbox" class="nav-btn">🎮 샌드박스</a>
+        <a href="#ecosystem" class="nav-btn">🚀 현대 생태계</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- STEP 1: HTML -->
+  <section id="step-html">
+    <div class="container">
+      <div class="tutorial-grid">
+        <div class="tutorial-info">
+          <span class="step-badge badge-html">STEP 1</span>
+          <h3>HTML: 웹의 뼈대 세우기</h3>
+          <p>HTML(HyperText Markup Language)은 웹페이지에 들어갈 **글자, 버튼, 이미지, 링크 등의 구조와 내용**을 정의합니다.</p>
+          <ul class="feature-list">
+            <li>✓ 웹에 어떤 정보가 들어가는지 나타내는 '건물의 철근' 역할</li>
+            <li>✓ 스타일이나 기능이 빠진 가장 순수한 정보 데이터</li>
+            <li>✓ 시맨틱 태그(&lt;header&gt;, &lt;article&gt; 등) 사용 시 SEO 성능 향상</li>
+          </ul>
+          <div class="code-box border-html">
+<code>&lt;div class="card"&gt;
+  &lt;h3&gt;사용자 프로필&lt;/h3&gt;
+  &lt;p&gt;기본 텍스트입니다.&lt;/p&gt;
+  &lt;button&gt;버튼&lt;/button&gt;
+&lt;/div&gt;</code>
+          </div>
+        </div>
+
+        <div class="live-demo-box">
+          <div class="demo-step1-card">
+            <h3>사용자 프로필</h3>
+            <p>기본 텍스트입니다.</p>
+            <button class="demo-step1-btn">버튼</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2: CSS -->
+  <section id="step-css">
+    <div class="container">
+      <div class="tutorial-grid">
+        <div class="tutorial-info">
+          <span class="step-badge badge-css">STEP 2</span>
+          <h3>CSS: 옷 입히고 스타일 가꾸기</h3>
+          <p>CSS(Cascading Style Sheets)는 HTML 뼈대에 **색상, 폰트, 여백, 레이아웃, 그라데이션** 등의 시각적 연출을 입힙니다.</p>
+          <ul class="feature-list">
+            <li>✓ 화면을 시각적으로 세련되고 보기 쉽게 만들어주는 디자인 담당</li>
+            <li>✓ Flexbox 및 Grid 레이아웃으로 모바일/PC 화면 크기에 대응</li>
+            <li>✓ 평범했던 뼈대가 세련된 카드로 변화합니다.</li>
+          </ul>
+          <div class="code-box border-css">
+<code>.card {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: white; border-radius: 16px; padding: 1.8rem;
+}
+button { background: white; color: #2563eb; }</code>
+          </div>
+        </div>
+
+        <div class="live-demo-box">
+          <div class="demo-step2-card">
+            <h3>사용자 프로필</h3>
+            <p>CSS가 입혀진 모습입니다.</p>
+            <button class="demo-step2-btn">스타일 버튼</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3: JS -->
+  <section id="step-js">
+    <div class="container">
+      <div class="tutorial-grid">
+        <div class="tutorial-info">
+          <span class="step-badge badge-js">STEP 3</span>
+          <h3>JavaScript: 움직임과 생명 불어넣기</h3>
+          <p>JavaScript는 사용자의 클릭, 입력, 스크롤 같은 동작에 반응하여 **화면 변화 및 로직**을 실행합니다.</p>
+          <ul class="feature-list">
+            <li>✓ 버튼을 누르면 숫자가 오르거나 애니메이션이 작동</li>
+            <li>✓ 사용자의 입력 검증 및 데이터 연산 처리</li>
+            <li>✓ 오른쪽 예시 버튼을 직접 클릭해서 숫자가 증가하는지 확인해보세요!</li>
+          </ul>
+          <div class="code-box border-js">
+<code>let count = 0;
+btn.addEventListener('click', () => {
+  count++;
+  countText.textContent = count;
+});</code>
+          </div>
+        </div>
+
+        <div class="live-demo-box">
+          <div class="demo-step3-card" id="step3-card">
+            <h3>인터랙티브 프로필</h3>
+            <p>클릭 수: <span id="step3-count" style="font-weight: bold; font-size: 1.2rem;">0</span>회</p>
+            <button class="demo-step3-btn" id="step3-btn">직접 클릭해보세요!</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADVANCED 1: BROWSER RENDERING PIPELINE -->
+  <section id="rendering">
+    <div class="container">
+      <div class="section-header">
+        <h2>⚙️ 심화 1: 브라우저 렌더링 파이프라인</h2>
+        <p>작성한 HTML, CSS, JS 코드가 브라우저 화면에 그래픽으로 변환되는 5단계 핵심 경로입니다.</p>
+      </div>
+
+      <div class="pipeline-container">
+        <div class="pipeline-step">
+          <div class="pipeline-number">Step 01</div>
+          <h4>DOM 트리 생성</h4>
+          <p>브라우저가 HTML 코드를 파싱하여 요소(Node)들의 나무 구조(DOM)를 만듭니다.</p>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="pipeline-number">Step 02</div>
+          <h4>CSSOM 트리 생성</h4>
+          <p>CSS 파일의 스타일 규칙을 분석하여 각 노드에 스타일을 할당한 CSSOM을 형성합니다.</p>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="pipeline-number">Step 03</div>
+          <h4>Render Tree 결합</h4>
+          <p>화면에 실제 표시될 DOM과 CSSOM을 합쳐 렌더 트리를 구성합니다. (display:none 제외)</p>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="pipeline-number">Step 04</div>
+          <h4>Layout (Reflow)</h4>
+          <p>각 요소가 기기 화면 상에서 몇 Pixel 크기로, 어디에 위치할지 정확한 좌푯값을 계산합니다.</p>
+        </div>
+
+        <div class="pipeline-step">
+          <div class="pipeline-number">Step 05</div>
+          <h4>Paint (Repaint)</h4>
+          <p>계산된 좌표 위에 색상, 그림자, 텍스트를 실제로 그려 넣고 화면에 출력합니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADVANCED 2: CSS BOX MODEL VISUALIZER -->
+  <section id="box-model">
+    <div class="container">
+      <div class="section-header">
+        <h2>📦 심화 2: CSS 박스 모델 (Box Model) 실시간 조작</h2>
+        <p>웹의 모든 요소를 감싸는 4가지 레이어(Content, Padding, Border, Margin)를 슬라이더로 조작해보세요.</p>
+      </div>
+
+      <div class="box-model-interactive">
+        <div class="box-controls">
+          <div class="control-item">
+            <label><span>Padding (내부 여백)</span><span id="val-padding">20px</span></label>
+            <input type="range" id="input-padding" min="5" max="40" value="20">
+          </div>
+          <div class="control-item">
+            <label><span>Border (테두리 두께)</span><span id="val-border">4px</span></label>
+            <input type="range" id="input-border" min="1" max="15" value="4">
+          </div>
+          <div class="control-item">
+            <label><span>Margin (외부 여백)</span><span id="val-margin">15px</span></label>
+            <input type="range" id="input-margin" min="5" max="40" value="15">
+          </div>
+        </div>
+
+        <div class="box-visualizer">
+          <div class="box-margin" id="box-margin-el" style="padding: 15px;">
+            <div class="box-border" id="box-border-el" style="border-width: 4px;">
+              <div class="box-padding" id="box-padding-el" style="padding: 20px;">
+                <div class="box-content">Content (내용물)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADVANCED 3: JS ASYNC & FETCH API -->
+  <section id="async-sec">
+    <div class="container">
+      <div class="section-header">
+        <h2>🌐 심화 3: JavaScript 비동기 통신 (Async & Fetch)</h2>
+        <p>새로고침 없이 서버에서 실시간 데이터(JSON)를 받아와 화면을 동적으로 업데이트하는 과정입니다.</p>
+      </div>
+
+      <div class="async-demo">
+        <button class="async-btn" id="fetch-btn">📡 가상 서버에서 프로필 불러오기</button>
+        
+        <div class="server-data-card" id="server-card">
+          <p style="color: #64748b; text-align: center;">버튼을 누르면 비동기 통신(Fetch)이 시작됩니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMBINED SANDBOX SECTION -->
+  <section id="sandbox">
+    <div class="container">
+      <div class="section-header">
+        <h2>🎮 종합 인터랙티브 샌드박스</h2>
+        <p>각 요소를 하나씩 껐다 켜보며 3가지 언어가 결합되는 과정을 직접 제어해보세요.</p>
+      </div>
+
+      <div class="sandbox-grid">
+        <div class="code-panel">
+          <div class="panel-title">📄 실시간 라이브 코드 모니터</div>
+
+          <div class="code-block html-block" id="code-html">
+            <div class="code-title tag-html">■ HTML (뼈대)</div>
+            <pre><code>&lt;div class="card"&gt;
+  &lt;h3&gt;사용자 프로필&lt;/h3&gt;
+  &lt;p&gt;좋아요: &lt;span id="likes"&gt;0&lt;/span&gt;&lt;/p&gt;
+  &lt;button id="btn"&gt;좋아요 누르기&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+          </div>
+
+          <div class="code-block css-block" id="code-css">
+            <div class="code-title tag-css">■ CSS (디자인)</div>
+            <pre><code>.card {
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  color: white; border-radius: 16px; padding: 2rem;
+}
+button { background: #fff; color: #4f46e5; }</code></pre>
+          </div>
+
+          <div class="code-block js-block" id="code-js">
+            <div class="code-title tag-js">■ JavaScript (동작)</div>
+            <pre><code>let count = 0;
+btn.addEventListener('click', () => {
+  count++;
+  likesSpan.textContent = count;
+});</code></pre>
+          </div>
+        </div>
+
+        <div class="preview-panel">
+          <div class="controls">
+            <div class="toggle-buttons">
+              <button class="toggle-btn active-html" id="btn-html">🦴 HTML</button>
+              <button class="toggle-btn" id="btn-css">🎨 CSS</button>
+              <button class="toggle-btn" id="btn-js">⚡ JavaScript</button>
+            </div>
+          </div>
+
+          <div class="canvas-container" id="canvas">
+            <!-- Dynamic Preview -->
+          </div>
+
+          <div class="explanation-box" id="explanation">
+            안내문이 출력되는 영역입니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODERN ECOSYSTEM SECTION -->
+  <section id="ecosystem">
+    <div class="container">
+      <div class="section-header">
+        <h2>🚀 현대 프론트엔드 생태계</h2>
+        <p>기초 3요소를 정복한 후 개발자들이 사용하는 최신 프론트엔드 도구들입니다.</p>
+      </div>
+
+      <div class="eco-grid">
+        <div class="eco-card">
+          <h3>⚛️ React / Vue / Svelte</h3>
+          <p>HTML/JS를 컴포넌트 단위로 재사용 가능하게 묶어 대규모 웹 앱을 효율적으로 구축하는 라이브러리/프레임워크입니다.</p>
+        </div>
+        <div class="eco-card">
+          <h3>🎨 Tailwind CSS</h3>
+          <p>복잡한 CSS 스타일시트를 별도로 작성하지 않고, HTML 클래스 이름만으로 빠르게 스타일을 부여하는 유틸리티 테일윈드 프레임워크입니다.</p>
+        </div>
+        <div class="eco-card">
+          <h3>🟦 TypeScript</h3>
+          <p>JavaScript에 strict한 데이터 '타입'을 선언할 수 있게 확장한 언어로, 대형 프로젝트에서의 코드 버그를 획기적으로 줄여줍니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ SECTION -->
+  <section id="faq">
+    <div class="container">
+      <div class="section-header">
+        <h2>❓ 자주 묻는 질문 (FAQ)</h2>
+        <p>웹 개발 입문자 및 심화 학습자들이 가장 궁금해하는 내용입니다.</p>
+      </div>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <h3>HTML만 사용해서 웹사이트를 만들 수 있나요?</h3>
+          <p>네, 가능합니다. 초기 인터넷 시대에는 HTML로만 구성된 웹사이트가 많았습니다. 다만 반응형 디자인이나 모던 UI를 표현할 수 없어 현재는 CSS와 JS를 반드시 함께 사용합니다.</p>
+        </div>
+        <div class="faq-item">
+          <h3>React나 Vue를 배우려면 바닐라(순수) JS를 먼저 알아야 하나요?</h3>
+          <p>네, 절대적으로 권장합니다. React나 Vue도 결국 순수 JavaScript 위에서 작동하는 도구이므로, 기본 DOM 제어와 비동기 개념(Fetch/Async)을 탄탄히 다진 후 프레임워크로 넘어가는 것이 학습 속도를 훨씬 높여줍니다.</p>
+        </div>
+        <div class="faq-item">
+          <h3>웹 개발 공부는 어떤 순서로 시작해야 하나요?</h3>
+          <p><b>HTML ➔ CSS ➔ JavaScript ➔ Git/GitHub ➔ React/Next.js</b> 순서를 강력히 추천합니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <p>© Interactive Web Learning Guide · Advanced Full-Stack Visualization Guide</p>
+    </div>
+  </footer>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    // 1. Step 3 Interactive Mini Demo
+    let step3Count = 0;
+    const step3Btn = document.getElementById('step3-btn');
+    const step3CountText = document.getElementById('step3-count');
+    const step3Card = document.getElementById('step3-card');
+
+    if (step3Btn) {
+      step3Btn.addEventListener('click', () => {
+        step3Count++;
+        step3CountText.textContent = step3Count;
+        step3Card.style.transform = 'scale(1.04)';
+        setTimeout(() => step3Card.style.transform = 'scale(1)', 150);
+      });
+    }
+
+    // 2. Interactive Box Model Controls
+    const inputPadding = document.getElementById('input-padding');
+    const inputBorder = document.getElementById('input-border');
+    const inputMargin = document.getElementById('input-margin');
+
+    const valPadding = document.getElementById('val-padding');
+    const valBorder = document.getElementById('val-border');
+    const valMargin = document.getElementById('val-margin');
+
+    const boxPaddingEl = document.getElementById('box-padding-el');
+    const boxBorderEl = document.getElementById('box-border-el');
+    const boxMarginEl = document.getElementById('box-margin-el');
+
+    function updateBoxModel() {
+      const pVal = inputPadding.value;
+      const bVal = inputBorder.value;
+      const mVal = inputMargin.value;
+
+      valPadding.textContent = `${pVal}px`;
+      valBorder.textContent = `${bVal}px`;
+      valMargin.textContent = `${mVal}px`;
+
+      boxPaddingEl.style.padding = `${pVal}px`;
+      boxBorderEl.style.borderWidth = `${bVal}px`;
+      boxMarginEl.style.padding = `${mVal}px`;
+    }
+
+    inputPadding.addEventListener('input', updateBoxModel);
+    inputBorder.addEventListener('input', updateBoxModel);
+    inputMargin.addEventListener('input', updateBoxModel);
+
+    // 3. Async & Fetch Interactive Demo
+    const fetchBtn = document.getElementById('fetch-btn');
+    const serverCard = document.getElementById('server-card');
+
+    fetchBtn.addEventListener('click', () => {
+      serverCard.innerHTML = `<p style="text-align: center;"><span class="loading-spinner"></span> 서버 통신 중... (비동기 데이터 요청)</p>`;
+      
+      // Simulate Server Response Delay (1.5 seconds)
+      setTimeout(() => {
+        const fakeData = {
+          status: 200,
+          user: "홍길동",
+          role: "Frontend Developer",
+          skills: ["HTML", "CSS", "JavaScript"]
+        };
+
+        serverCard.innerHTML = `
+          <p style="color: #22c55e; margin-bottom: 0.5rem;"><b>✔ 응답 성공 (Status 200 OK)</b></p>
+          <pre><code>${JSON.stringify(fakeData, null, 2)}</code></pre>
+        `;
+      }, 1500);
+    });
+
+    // 4. Main Sandbox State Logic
+    let isHtmlOn = true;
+    let isCssOn = false;
+    let isJsOn = false;
+    let sandboxClickCount = 0;
+
+    const btnHtml = document.getElementById('btn-html');
+    const btnCss = document.getElementById('btn-css');
+    const btnJs = document.getElementById('btn-js');
+
+    const codeHtml = document.getElementById('code-html');
+    const codeCss = document.getElementById('code-css');
+    const codeJs = document.getElementById('code-js');
+
+    const canvas = document.getElementById('canvas');
+    const explanation = document.getElementById('explanation');
+
+    function renderSandbox() {
+      btnHtml.classList.toggle('active-html', isHtmlOn);
+      btnCss.classList.toggle('active-css', isCssOn);
+      btnJs.classList.toggle('active-js', isJsOn);
+
+      codeHtml.classList.toggle('active', isHtmlOn);
+      codeCss.classList.toggle('active', isCssOn);
+      codeJs.classList.toggle('active', isJsOn);
+
+      canvas.innerHTML = '';
+
+      if (!isHtmlOn) {
+        canvas.innerHTML = '<p style="color: #94a3b8; text-align: center;">HTML 스위치가 꺼져 있습니다.<br>웹의 기초인 <b>HTML(뼈대)</b> 스위치를 먼저 켜주세요!</p>';
+        updateExplanation();
+        return;
+      }
+
+      const cardContainer = document.createElement('div');
+      const title = document.createElement('h3');
+      const desc = document.createElement('p');
+      const countSpan = document.createElement('span');
+      const button = document.createElement('button');
+
+      title.textContent = '사용자 프로필';
+      desc.textContent = '좋아요 횟수: ';
+      countSpan.textContent = sandboxClickCount;
+      desc.appendChild(countSpan);
+      button.textContent = '좋아요 누르기';
+
+      cardContainer.appendChild(title);
+      cardContainer.appendChild(desc);
+      cardContainer.appendChild(button);
+
+      if (isCssOn) {
+        cardContainer.className = 'styled-card';
+        button.className = 'styled-button';
+      } else {
+        cardContainer.className = 'raw-card';
+        button.className = 'raw-button';
+      }
+
+      if (isJsOn) {
+        button.addEventListener('click', () => {
+          sandboxClickCount++;
+          countSpan.textContent = sandboxClickCount;
+          if (isCssOn) {
+            cardContainer.style.transform = 'scale(1.05)';
+            setTimeout(() => cardContainer.style.transform = 'scale(1)', 150);
+          }
+        });
+      } else {
+        button.addEventListener('click', () => {
+          alert('⚡ JS 스위치가 꺼져 있어 동작하지 않습니다. 상단의 JS 스위치를 켜보세요!');
+        });
+      }
+
+      canvas.appendChild(cardContainer);
+      updateExplanation();
+    }
+
+    function updateExplanation() {
+      if (!isHtmlOn) {
+        explanation.innerHTML = '💡 <b>HTML OFF:</b> 요소가 존재하지 않는 빈 상태입니다.';
+      } else if (isHtmlOn && !isCssOn && !isJsOn) {
+        explanation.innerHTML = '🍊 <b>HTML ON:</b> 기본 텍스트와 버튼 뼈대만 존재하는 상태입니다.';
+      } else if (isHtmlOn && isCssOn && !isJsOn) {
+        explanation.innerHTML = '🔹 <b>HTML + CSS:</b> 예쁜 카드 스타일이 적용되었지만, 버튼을 눌러도 반응하지 않습니다.';
+      } else if (isHtmlOn && !isCssOn && isJsOn) {
+        explanation.innerHTML = '⚡ <b>HTML + JS:</b> 디자인은 없지만 클릭 시 좋아요 수가 증가하는 기능이 작동합니다.';
+      } else {
+        explanation.innerHTML = '🎉 <b>완성형 (HTML + CSS + JS):</b> 뼈대, 디자인, 인터랙션이 모두 조화롭게 동작하는 완성된 웹 앱입니다!';
+      }
+    }
+
+    btnHtml.addEventListener('click', () => { isHtmlOn = !isHtmlOn; renderSandbox(); });
+    btnCss.addEventListener('click', () => {
+      if (!isHtmlOn && !isCssOn) { alert('HTML을 먼저 켜주세요!'); return; }
+      isCssOn = !isCssOn; renderSandbox();
+    });
+    btnJs.addEventListener('click', () => {
+      if (!isHtmlOn && !isJsOn) { alert('HTML을 먼저 켜주세요!'); return; }
+      isJsOn = !isJsOn; renderSandbox();
+    });
+
+    renderSandbox();
+  </script>
+</body>
+</html>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오버워치 2 영웅 도감 - 세부 역할군 버전</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ow: {
+                            orange: '#F99E1A',
+                            orangeLight: '#ffb347',
+                            dark: '#0e1626',
+                            cardBg: '#18243b',
+                            cardHover: '#223250',
+                            border: '#2a3c5a',
+                            tank: '#2078bb',
+                            damage: '#bd3333',
+                            support: '#22996e'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                        rajdhani: ['Rajdhani', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0b111e;
+            color: #e2e8f0;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(249, 158, 26, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(32, 120, 187, 0.08) 0%, transparent 40%);
+            min-height: 100vh;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0b111e; }
+        ::-webkit-scrollbar-thumb { background: #2a3c5a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #f99e1a; }
+
+        .ow-skew { transform: skewX(-12deg); }
+        .ow-skew-unskew { transform: skewX(12deg); }
+
+        .hero-card {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hero-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 12px 24px -6px rgba(249, 158, 26, 0.3);
+        }
+        .hero-card:hover .hero-portrait {
+            transform: scale(1.08);
+        }
+        .hero-portrait { transition: transform 0.3s ease; }
+    </style>
+</head>
+<body class="font-sans antialiased pb-16">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-40 bg-ow-dark/90 backdrop-blur-md border-b border-ow-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-11 h-11 bg-ow-orange rounded-lg flex items-center justify-center shadow-lg shadow-ow-orange/20 ow-skew">
+                    <i class="fa-solid fa-shield-halved text-ow-dark text-2xl ow-skew-unskew"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black font-rajdhani tracking-wider text-white uppercase flex items-center gap-2">
+                        OVERWATCH <span class="text-ow-orange">HEROES</span>
+                        <span class="text-xs bg-ow-border text-gray-300 font-normal px-2 py-0.5 rounded ow-skew-unskew">CUSTOM CLASSIFICATION</span>
+                    </h1>
+                    <p class="text-xs text-gray-400">오버워치 2 세부 역할군 영웅 도감</p>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="hidden md:flex items-center space-x-6 text-sm font-rajdhani">
+                <div class="flex items-center space-x-2">
+                    <span class="text-gray-400">등록 영웅:</span>
+                    <span id="stat-total" class="font-bold text-ow-orange text-lg">--</span>
+                </div>
+                <div class="h-4 w-px bg-ow-border"></div>
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-shield-cat text-ow-tank"></i>
+                    <span id="stat-tank" class="font-bold text-white">--</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-crosshairs text-ow-damage"></i>
+                    <span id="stat-damage" class="font-bold text-white">--</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-staff text-ow-support"></i>
+                    <span id="stat-support" class="font-bold text-white">--</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+
+        <!-- Controls Section (Filters & Search) -->
+        <section class="mb-8 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-ow-cardBg p-4 rounded-xl border border-ow-border shadow-lg">
+            
+            <!-- Role Filter Tabs -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
+                <button onclick="filterRole('all')" id="btn-role-all" class="role-btn px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 transition-all bg-ow-orange text-ow-dark shadow-md">
+                    <i class="fa-solid fa-border-all"></i> 전체
+                </button>
+                <button onclick="filterRole('tank')" id="btn-role-tank" class="role-btn px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 transition-all bg-ow-dark text-gray-300 hover:bg-ow-cardHover border border-ow-border">
+                    <i class="fa-solid fa-shield-cat text-ow-tank"></i> 돌격 (Tank)
+                </button>
+                <button onclick="filterRole('damage')" id="btn-role-damage" class="role-btn px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 transition-all bg-ow-dark text-gray-300 hover:bg-ow-cardHover border border-ow-border">
+                    <i class="fa-solid fa-crosshairs text-ow-damage"></i> 공격 (Damage)
+                </button>
+                <button onclick="filterRole('support')" id="btn-role-support" class="role-btn px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 transition-all bg-ow-dark text-gray-300 hover:bg-ow-cardHover border border-ow-border">
+                    <i class="fa-solid fa-staff text-ow-support"></i> 지원 (Support)
+                </button>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="flex items-center gap-3">
+                <div class="relative flex-1 md:w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="search-input" oninput="handleSearch()" placeholder="영웅 또는 세부 분류 검색..." 
+                           class="w-full bg-ow-dark text-white text-sm pl-10 pr-4 py-2.5 rounded-lg border border-ow-border focus:outline-none focus:border-ow-orange transition-colors">
+                </div>
+            </div>
+        </section>
+
+        <!-- Loading State Spinner -->
+        <div id="loading-spinner" class="py-20 text-center">
+            <div class="inline-block w-12 h-12 border-4 border-ow-orange border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p class="text-gray-400 font-medium">영웅 데이터 및 커스텀 분류 구성 중...</p>
+        </div>
+
+        <!-- Hero Container (Grouped by Sub-Roles) -->
+        <div id="hero-container" class="space-y-10 hidden">
+            <!-- Dynamic Sub-role Sections will be rendered here -->
+        </div>
+
+        <!-- No Results Found State -->
+        <div id="no-results" class="hidden py-16 text-center bg-ow-cardBg rounded-xl border border-ow-border">
+            <i class="fa-solid fa-circle-exclamation text-4xl text-ow-orange mb-3"></i>
+            <p class="text-lg font-bold text-white mb-1">검색 결과가 없습니다</p>
+            <p class="text-sm text-gray-400">검색어 단어를 확인하거나 역할군 필터를 변경해 보세요.</p>
+        </div>
+
+    </main>
+
+    <!-- Hero Detail Modal -->
+    <div id="hero-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-ow-cardBg border border-ow-border w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 max-h-[90vh] flex flex-col" id="modal-container">
+            
+            <!-- Modal Header -->
+            <div class="relative bg-gradient-to-r from-ow-dark via-ow-cardHover to-ow-dark p-6 border-b border-ow-border flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div id="modal-portrait-wrap" class="w-20 h-20 rounded-xl overflow-hidden border-2 border-ow-orange bg-ow-dark flex-shrink-0">
+                        <img id="modal-portrait" src="" alt="Hero Portrait" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span id="modal-role-badge" class="px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider text-white">
+                                Role
+                            </span>
+                            <span id="modal-subrole-badge" class="px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-ow-orange text-ow-dark">
+                                SubRole
+                            </span>
+                        </div>
+                        <h2 id="modal-name" class="text-3xl font-black text-white">Hero Name</h2>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="w-10 h-10 rounded-full bg-ow-dark text-gray-400 hover:text-white hover:bg-ow-border transition-colors flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content Body -->
+            <div class="p-6 overflow-y-auto space-y-6 flex-1">
+                <div>
+                    <h3 class="text-xs font-bold text-ow-orange uppercase tracking-wider mb-2 font-rajdhani">설명 & 배경</h3>
+                    <p id="modal-description" class="text-sm text-gray-300 leading-relaxed bg-ow-dark/60 p-4 rounded-lg border border-ow-border/50">
+                        영웅 정보를 불러오는 중입니다...
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-xs font-bold text-ow-orange uppercase tracking-wider mb-3 font-rajdhani">기술 (Abilities)</h3>
+                    <div id="modal-abilities" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-ow-dark border-t border-ow-border flex justify-end">
+                <button onclick="closeModal()" class="px-6 py-2 bg-ow-orange text-ow-dark font-bold rounded-lg hover:bg-ow-orangeLight transition-colors">
+                    확인
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Custom Sub-Role Configuration & Hero Order
+        const customClassification = {
+            tank: [
+                { subRole: '개시자', heroes: ['D.Va', '둠피스트', '레킹볼', '윈스턴', '해저드'] },
+                { subRole: '투사', heroes: ['로드호그', '마우가', '오리사', '자리야'] },
+                { subRole: '강건한 자', heroes: ['도미나', '라마트라', '라인하르트', '시그마', '정커퀸'] }
+            ],
+            damage: [
+                { subRole: '전문가', heroes: ['메이', '바스티온', '솔저: 76', '시메트라', '엠레', '정크랫', '토르비욘'] },
+                { subRole: '수색가', heroes: ['솜브라', '시에라', '에코', '파라', '프레야'] },
+                { subRole: '측면 공격가', heroes: ['겐지', '리퍼', '벤데타', '벤처', '시온', '안란', '트레이서'] },
+                { subRole: '명사수', heroes: ['소전', '애쉬', '위도우메이커', '캐서디', '한조'] }
+            ],
+            support: [
+                { subRole: '전술가', heroes: ['루시우', '바티스트', '아나', '제트팩캣', '젠야타'] },
+                { subRole: '의무관', heroes: ['라이프위버', '메르시', '모이라', '키리코'] },
+                { subRole: '생존왕', heroes: ['미즈키', '브리기테', '우양', '일리아리', '주노'] }
+            ]
+        };
+
+        const roleConfig = {
+            tank: { name: '돌격', icon: 'fa-shield-cat', bg: 'bg-ow-tank', color: '#2078bb' },
+            damage: { name: '공격', icon: 'fa-crosshairs', bg: 'bg-ow-damage', color: '#bd3333' },
+            support: { name: '지원', icon: 'fa-staff', bg: 'bg-ow-support', color: '#22996e' }
+        };
+
+        let processedHeroList = [];
+        let currentRole = 'all';
+        let searchQuery = '';
+
+        // Helper: Clean string for matching (ignore spaces & special chars)
+        const cleanStr = (s) => (s || '').toString().toLowerCase().replace(/[\s\-_:]/g, '');
+
+        // Generate Master Hero Dataset matching user classification
+        async function initData() {
+            let apiHeroes = [];
+            try {
+                const res = await fetch('https://overfast-api.tekrop.fr/heroes?locale=ko-kr');
+                if (res.ok) apiHeroes = await res.json();
+            } catch (err) {
+                console.warn('API Fetch failed, fallback dataset initialized.');
+            }
+
+            // Map API data into user-specified custom structures
+            const resultList = [];
+
+            Object.keys(customClassification).forEach(roleKey => {
+                const groups = customClassification[roleKey];
+
+                groups.forEach(group => {
+                    group.heroes.forEach(heroName => {
+                        // Find matching hero in API response
+                        const matched = apiHeroes.find(h => 
+                            cleanStr(h.name) === cleanStr(heroName) || 
+                            cleanStr(h.key) === cleanStr(heroName)
+                        );
+
+                        const heroKey = matched ? matched.key : cleanStr(heroName);
+                        const portraitUrl = matched ? matched.portrait : `https://overfast-api.tekrop.fr/static/heroes/portraits/${heroKey}.avif`;
+
+                        resultList.push({
+                            key: heroKey,
+                            name: heroName,
+                            role: roleKey,
+                            subRole: group.subRole,
+                            portrait: portraitUrl,
+                            apiData: matched || null
+                        });
+                    });
+                });
+            });
+
+            processedHeroList = resultList;
+            
+            document.getElementById('loading-spinner').classList.add('hidden');
+            document.getElementById('hero-container').classList.remove('hidden');
+            updateStats();
+            renderGrid();
+        }
+
+        function updateStats() {
+            document.getElementById('stat-total').innerText = processedHeroList.length;
+            document.getElementById('stat-tank').innerText = processedHeroList.filter(h => h.role === 'tank').length;
+            document.getElementById('stat-damage').innerText = processedHeroList.filter(h => h.role === 'damage').length;
+            document.getElementById('stat-support').innerText = processedHeroList.filter(h => h.role === 'support').length;
+        }
+
+        function renderGrid() {
+            const container = document.getElementById('hero-container');
+            const noResults = document.getElementById('no-results');
+
+            // Filter heroes
+            const filtered = processedHeroList.filter(hero => {
+                const matchesRole = (currentRole === 'all') || (hero.role === currentRole);
+                const matchesSearch = cleanStr(hero.name).includes(cleanStr(searchQuery)) || 
+                                      cleanStr(hero.subRole).includes(cleanStr(searchQuery)) ||
+                                      cleanStr(hero.key).includes(cleanStr(searchQuery));
+                return matchesRole && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.classList.add('hidden');
+                noResults.classList.remove('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            noResults.classList.add('hidden');
+
+            // Group filtered items by SubRole while keeping user's defined order
+            const targetRoles = currentRole === 'all' ? ['tank', 'damage', 'support'] : [currentRole];
+            let html = '';
+
+            targetRoles.forEach(roleKey => {
+                const roleMeta = roleConfig[roleKey];
+                const subRoleGroups = customClassification[roleKey];
+
+                subRoleGroups.forEach(group => {
+                    const groupHeroes = filtered.filter(h => h.role === roleKey && h.subRole === group.subRole);
+
+                    if (groupHeroes.length > 0) {
+                        html += `
+                            <div class="subrole-section">
+                                <!-- Section Header -->
+                                <div class="flex items-center gap-3 mb-4 pb-2 border-b border-ow-border/80">
+                                    <div class="w-8 h-8 rounded-lg ${roleMeta.bg} flex items-center justify-center text-white text-sm shadow">
+                                        <i class="fa-solid ${roleMeta.icon}"></i>
+                                    </div>
+                                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                                        <span>${group.subRole}</span>
+                                        <span class="text-xs px-2 py-0.5 rounded-full bg-ow-dark text-gray-400 border border-ow-border font-normal">
+                                            ${groupHeroes.length}
+                                        </span>
+                                    </h2>
+                                </div>
+
+                                <!-- Cards Grid -->
+                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+                                    ${groupHeroes.map(hero => `
+                                        <div onclick="openHeroModal('${hero.key}', '${hero.name}', '${hero.role}', '${hero.subRole}')" 
+                                             class="hero-card cursor-pointer bg-ow-cardBg rounded-xl overflow-hidden border border-ow-border hover:border-ow-orange relative group">
+                                            
+                                            <!-- Portrait Image -->
+                                            <div class="relative aspect-[4/5] bg-gradient-to-b from-transparent to-ow-dark/90 overflow-hidden">
+                                                <img src="${hero.portrait}" alt="${hero.name}" 
+                                                     class="hero-portrait w-full h-full object-cover object-center"
+                                                     loading="lazy"
+                                                     onerror="this.src='https://via.placeholder.com/200x250/18243b/ffffff?text=${encodeURIComponent(hero.name)}'">
+                                                
+                                                <div class="absolute top-2.5 left-2.5 bg-ow-dark/80 backdrop-blur-md text-white px-2 py-1 rounded text-[11px] font-bold border border-ow-border/80 shadow">
+                                                    ${hero.subRole}
+                                                </div>
+                                            </div>
+
+                                            <!-- Card Info -->
+                                            <div class="p-3 bg-ow-cardBg border-t border-ow-border/50 flex items-center justify-between">
+                                                <div>
+                                                    <h3 class="font-bold text-white text-base group-hover:text-ow-orange transition-colors">${hero.name}</h3>
+                                                    <p class="text-xs text-gray-400 font-rajdhani uppercase tracking-wider">${hero.key}</p>
+                                                </div>
+                                                <div class="w-7 h-7 rounded-full bg-ow-dark flex items-center justify-center text-gray-400 group-hover:text-ow-orange group-hover:bg-ow-orange/10 transition-colors">
+                                                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+            });
+
+            container.innerHTML = html;
+        }
+
+        function filterRole(role) {
+            currentRole = role;
+            document.querySelectorAll('.role-btn').forEach(btn => {
+                btn.className = "role-btn px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 transition-all bg-ow-dark text-gray-300 hover:bg-ow-cardHover border border-ow-border";
+            });
+            const activeBtn = document.getElementById(`btn-role-${role}`);
+            if (activeBtn) activeBtn.className = "role-btn px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 transition-all bg-ow-orange text-ow-dark shadow-md";
+
+            renderGrid();
+        }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('search-input').value.trim();
+            renderGrid();
+        }
+
+        async function openHeroModal(heroKey, heroName, roleKey, subRoleName) {
+            const modal = document.getElementById('hero-modal');
+            const container = document.getElementById('modal-container');
+            const roleMeta = roleConfig[roleKey] || { name: roleKey, bg: 'bg-gray-600' };
+
+            const heroObj = processedHeroList.find(h => h.key === heroKey) || { portrait: '' };
+
+            document.getElementById('modal-name').innerText = heroName;
+            document.getElementById('modal-portrait').src = heroObj.portrait;
+            document.getElementById('modal-role-badge').className = `px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider text-white ${roleMeta.bg}`;
+            document.getElementById('modal-role-badge').innerText = roleMeta.name;
+            document.getElementById('modal-subrole-badge').innerText = subRoleName;
+            
+            document.getElementById('modal-description').innerText = "상세 데이터를 불러오는 중...";
+            document.getElementById('modal-abilities').innerHTML = `<div class="col-span-2 text-center text-gray-400 py-4"><i class="fa-solid fa-spinner animate-spin"></i> 스킬 데이터 조회 중...</div>`;
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            container.classList.remove('scale-95');
+            container.classList.add('scale-100');
+
+            try {
+                const res = await fetch(`https://overfast-api.tekrop.fr/heroes/${heroKey}?locale=ko-kr`);
+                if (!res.ok) throw new Error('Detail fetch failed');
+                const detail = await res.json();
+
+                document.getElementById('modal-description').innerText = detail.description || `${heroName}은(는) 오버워치 2의 ${subRoleName} 역할군 영웅입니다.`;
+
+                if (detail.abilities && detail.abilities.length > 0) {
+                    document.getElementById('modal-abilities').innerHTML = detail.abilities.map(ab => `
+                        <div class="bg-ow-dark p-3.5 rounded-xl border border-ow-border flex gap-3 items-start">
+                            <img src="${ab.icon}" alt="${ab.name}" class="w-10 h-10 object-contain bg-ow-cardHover p-1 rounded-lg border border-ow-border flex-shrink-0" onerror="this.src='https://via.placeholder.com/40?text=Skill'">
+                            <div>
+                                <h4 class="font-bold text-white text-sm">${ab.name}</h4>
+                                <p class="text-xs text-gray-400 mt-1 line-clamp-3 leading-relaxed">${ab.description}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    document.getElementById('modal-abilities').innerHTML = `<p class="text-sm text-gray-400 col-span-2">스킬 데이터가 존재하지 않습니다.</p>`;
+                }
+            } catch (err) {
+                document.getElementById('modal-description').innerText = `${heroName}은(는) 오버워치 2의 강력한 [${subRoleName}] 분류 영웅입니다.`;
+                document.getElementById('modal-abilities').innerHTML = `<p class="text-sm text-gray-400 col-span-2">기본 스킬 가이드 준비 중입니다.</p>`;
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('hero-modal');
+            const container = document.getElementById('modal-container');
+            container.classList.remove('scale-100');
+            container.classList.add('scale-95');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+        initData();
+    </script>
+</body>
+</html>
+```eof

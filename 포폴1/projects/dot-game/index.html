@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>도트 액션 게임 프로토타입</title>
+    <style>
+        body { margin: 0; background-color: #222; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; flex-direction: column; }
+        canvas { background-color: #4CAF50; border: 4px solid #333; box-shadow: 0 0 20px black; }
+        #instructions { margin-top: 10px; text-align: center; font-family: sans-serif; }
+    </style>
+</head>
+<body>
+
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+<div id="instructions">
+    WASD: 이동 | 좌클릭: 공격 | 우클릭: 방어 | Shift: 대시<br>
+    파란색: 플레이어 | 초록색: 고블린 | 빨간선: 공격 판정
+</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// --- 입력 처리 ---
+const keys = {};
+window.addEventListener('keydown', e => keys[e.code] = true);
+window.addEventListener('keyup', e => keys[e.code] = false);
+
+let mouseX = 0, mouseY = 0;
+let isAttacking = false;
+let isBlocking = false;
+
+canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
+});
+canvas.addEventListener('mousedown', e => {
+    if (e.button === 0 && !isAttacking && !player.isExhausted) player.attack(); // 좌클릭
+    if (e.button === 2 && !player.isExhausted) player.block(true); // 우클릭
+});
+canvas.addEventListener('mouseup', e => {
+    if (e.button === 2) player.block(false);
+});
+canvas.addEventListener('contextmenu', e => e.preventDefault()); // 우클릭 메뉴 방지
+
+// --- 플레이어 객체 ---
+const player = {
+    x: 400, y: 300, size: 20,
+    hp: 200, maxHp: 200,
+    stamina: 100, maxStamina: 100,
+    speed: 4, defaultSpeed: 4, dashSpeed: 12,
+    atk: 50, // 훈련용 검
+    isDashing: false, isExhausted: false,
+    
+    update() {
+        if (this.hp <= 0) return; // 사망 상태
+
+        // 이동 로직
+        let dx = 0, dy = 0;
+        if (keys['KeyW']) dy -= 1;
+        if (keys['KeyS']) dy += 1;
+        if (keys['KeyA']) dx -= 1;
+        if (keys['KeyD']) dx += 1;
+
+        // 대시 로직 (Shift)
+        if (keys['ShiftLeft'] && !this.isDashing && !this.isExhausted && this.stamina >= 10 && (dx !== 0 || dy !== 0)) {
+            this.isDashing = true;
+            this.stamina -= 10;
+            this.speed = this.dashSpeed;
+            setTimeout(() => { 
+                this.isDashing = false; 
+                this.speed = this.defaultSpeed; 
+            }, 200); // 0.2초간 대시
+        }
+
+        // 대각선 이동 속도 보정
+        if (dx !== 0 && dy !== 0) {
+            const length = Math.sqrt(dx * dx + dy * dy);
+            dx /= length;
+            dy /= length;
+        }
+
+        // 방어 중에는 이동 불가 (기획에 맞춰 수정 가능)
+        if (!isBlocking) {
+            this.x += dx * this.speed;
+            this.y += dy * this.speed;
+        }
+
+        // 화면 밖으로 나가지 않게 (추후 맵 이동 트리거로 사용 가능)
+        this.x = Math.max(this.size, Math.min(canvas.width - this.size, this.x));
+        this.y = Math.max(this.size, Math.min(canvas.height - this.size, this.y));
+
+        // 스태미나 회복 로직
+        if (!this.isDashing && !isBlocking && this.stamina < this.maxStamina) {
+            this.stamina += 0.5; // 초당 약 30 회복 (60fps 기준)
+            if (this.stamina > this.maxStamina) this.stamina = this.maxStamina;
+        }
+
+        // 스태미나 고갈 페널티 (3초 슬로우)
+        if (this.stamina <= 0 && !this.isExhausted) {
+            this.isExhausted = true;
+            this.speed = 2; // 슬로우 상태
+            setTimeout(() => {
+                this.isExhausted = false;
+                this.speed = this.defaultSpeed;
+            }, 3000);
+        }
+    },
+
+    attack() {
+        isAttacking = true;
+        // 공격 방향 계산
+        const angle = Math.atan2(mouseY - this.y, mouseX - this.x);
+        
+        // 공격 판정 (플레이어 앞의 부채꼴/사각형 영역)
+        goblins.forEach(goblin => {
+            const dist = Math.hypot(goblin.x - this.x, goblin.y - this.y);
+            if (dist < 60) { // 사거리 내
+                goblin.hp -= this.atk;
+                // 넉백 효과
+                goblin.x += Math.cos(angle) * 20;
+                goblin.y += Math.sin(angle) * 20;
+            }
+        });
+
+        setTimeout(() => isAttacking = false, 300); // 0.3초 공격 모션
+    },
+
+    block(state) {
+        if (state && this.stamina >= 15) {
+            isBlocking = true;
+            this.stamina -= 15; // 방어 시 스태미나 소모
+            // *저스트 가드 로직은 여기에 추가 타이머를 두어 구현합니다.
+        } else {
+            isBlocking = false;
+        }
+    },
+
+    draw(ctx) {
+        if (this.hp <= 0) return;
+        
+        // 플레이어 본체
+        ctx.fillStyle = this.isExhausted ? 'gray' : 'blue';
+        ctx.fillRect(this.x - this.size, this.y - this.size, this.size * 2, this.size * 2);
+
+        // 방어 이펙트
+        if (isBlocking) {
+            ctx.strokeStyle = 'cyan';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(this.x - this.size - 5, this.y - this.size - 5, this.size * 2 + 10, this.size * 2 + 10);
+        }
+
+        // 공격 이펙트 (마우스 방향)
+        if (isAttacking) {
+            const angle = Math.atan2(mouseY - this.y, mouseX - this.x);
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 60, angle - 0.5, angle + 0.5);
+            ctx.lineTo(this.x, this.y);
+            ctx.fill();
+        }
+    }
+};
+
+// --- 적 객체 (고블린) ---
+class Goblin {
+    constructor(x, y) {
+        this.x = x; this.y = y; this.size = 15;
+        this.hp = 100; this.atk = 40; this.speed = 1.5;
+        this.attackCooldown = 0;
+    }
+
+    update() {
+        if (player.hp <= 0) return;
+
+        // 플레이어 추적
+        const dx = player.x - this.x;
+        const dy = player.y - this.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist > this.size + player.size) {
+            this.x += (dx / dist) * this.speed;
+            this.y += (dy / dist) * this.speed;
+        } else {
+            // 공격
+            if (this.attackCooldown <= 0 && !isBlocking) {
+                player.hp -= this.atk;
+                this.attackCooldown = 60; // 1초 쿨다운 (60fps)
+            }
+        }
+        if (this.attackCooldown > 0) this.attackCooldown--;
+    }
+
+    draw(ctx) {
+        ctx.fillStyle = 'green';
+        ctx.fillRect(this.x - this.size, this.y - this.size, this.size * 2, this.size * 2);
+        
+        // 체력바
+        ctx.fillStyle = 'red';
+        ctx.fillRect(this.x - 15, this.y - 25, 30, 4);
+        ctx.fillStyle = 'lime';
+        ctx.fillRect(this.x - 15, this.y - 25, 30 * (this.hp / 100), 4);
+    }
+}
+
+let goblins = [new Goblin(100, 100), new Goblin(700, 100), new Goblin(100, 500), new Goblin(700, 500)];
+
+// --- UI 및 게임 루프 ---
+function drawUI() {
+    // 체력바 (HP)
+    ctx.fillStyle = 'black'; ctx.fillRect(10, 10, 204, 24);
+    ctx.fillStyle = 'red'; ctx.fillRect(12, 12, 200 * (Math.max(0, player.hp) / player.maxHp), 20);
+    ctx.fillStyle = 'white'; ctx.fillText(`HP: ${Math.max(0, player.hp)} / ${player.maxHp}`, 20, 26);
+
+    // 스태미나바 (SP)
+    ctx.fillStyle = 'black'; ctx.fillRect(10, 40, 204, 14);
+    ctx.fillStyle = 'yellow'; ctx.fillRect(12, 42, 200 * (player.stamina / player.maxStamina), 10);
+    
+    // 사망 화면
+    if (player.hp <= 0) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'red';
+        ctx.font = '50px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText("YOU DIED", canvas.width/2, canvas.height/2);
+        ctx.font = '20px Arial';
+        ctx.fillStyle = 'white';
+        ctx.fillText("새로고침(F5)하여 리스폰", canvas.width/2, canvas.height/2 + 50);
+    }
+}
+
+function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 상태 업데이트
+    player.update();
+    goblins = goblins.filter(g => g.hp > 0); // 죽은 고블린 제거
+    goblins.forEach(g => g.update());
+
+    // 렌더링
+    goblins.forEach(g => g.draw(ctx));
+    player.draw(ctx);
+    drawUI();
+
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+</body>
+</html>
